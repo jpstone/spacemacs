@@ -1,6 +1,6 @@
 ;;; packages.el --- HTML Layer packages File for Spacemacs
 ;;
-;; Copyright (c) 2012-2017 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2018 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -19,6 +19,8 @@
         evil-matchit
         flycheck
         haml-mode
+        (counsel-css :requires ivy
+                     :location (recipe :fetcher github :repo "hlissner/emacs-counsel-css"))
         (helm-css-scss :requires helm)
         impatient-mode
         less-css-mode
@@ -139,6 +141,14 @@
   (use-package haml-mode
     :defer t))
 
+(defun html/init-counsel-css ()
+  (use-package counsel-css
+    :defer t
+    :init (cl-loop for (mode . mode-hook) in '((css-mode . css-mode-hook)
+                                            (scss-mode . scss-mode-hook))
+                do (add-hook mode-hook 'counsel-css-imenu-setup)
+                (spacemacs/set-leader-keys-for-major-mode mode "gh" 'counsel-css))))
+
 (defun html/init-helm-css-scss ()
   (use-package helm-css-scss
     :defer t
@@ -201,12 +211,12 @@
     :defer t
     :config
     (progn
-      (spacemacs/declare-prefix-for-mode 'web-mode "me" "errors")
+      (spacemacs/declare-prefix-for-mode 'web-mode "mE" "errors")
       (spacemacs/declare-prefix-for-mode 'web-mode "mg" "goto")
       (spacemacs/declare-prefix-for-mode 'web-mode "mh" "dom")
       (spacemacs/declare-prefix-for-mode 'web-mode "mr" "refactor")
       (spacemacs/set-leader-keys-for-major-mode 'web-mode
-        "eh" 'web-mode-dom-errors-show
+        "El" 'web-mode-dom-errors-show
         "gb" 'web-mode-element-beginning
         "gc" 'web-mode-element-child
         "gp" 'web-mode-element-parent
@@ -266,6 +276,7 @@
     (("\\.phtml\\'"      . web-mode)
      ("\\.tpl\\.php\\'"  . web-mode)
      ("\\.twig\\'"       . web-mode)
+     ("\\.xml\\'"        . web-mode)
      ("\\.html\\'"       . web-mode)
      ("\\.htm\\'"        . web-mode)
      ("\\.[gj]sp\\'"     . web-mode)

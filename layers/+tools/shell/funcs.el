@@ -1,6 +1,6 @@
 ;;; funcs.el --- Shell Layer functions File
 ;;
-;; Copyright (c) 2012-2017 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2018 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -137,9 +137,13 @@ is achieved by adding the relevant text properties."
     (eshell-send-input))
   ;; Caution! this will erase buffer's content at C-l
   (define-key eshell-mode-map (kbd "C-l") 'spacemacs/eshell-clear-keystroke)
-  (define-key eshell-mode-map (kbd "C-d") 'eshell-delchar-or-maybe-eof))
+  (define-key eshell-mode-map (kbd "C-d") 'eshell-delchar-or-maybe-eof)
 
-
+  ;; These don't work well in normal state
+  ;; due to evil/emacs cursor incompatibility
+  (evil-define-key 'insert eshell-mode-map
+    (kbd "C-k") 'eshell-previous-matching-input-from-input
+    (kbd "C-j") 'eshell-next-matching-input-from-input))
 
 (defun spacemacs/helm-eshell-history ()
   "Correctly revert to insert state after selection."

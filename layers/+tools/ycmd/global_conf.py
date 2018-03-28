@@ -1,6 +1,6 @@
 # global_conf.py --- ycmd global configuration file for Spacemacs
 #
-# Copyright (c) 2012-2017 Sylvain Benner & Contributors
+# Copyright (c) 2012-2018 Sylvain Benner & Contributors
 #
 # Author: Thomas de Beauchene <thomas.de.beauchene@gmail.com>
 # URL: https://github.com/syl20bnr/spacemacs
@@ -144,7 +144,7 @@ def FindNearest(path, target, filename, subdirs=[]):
     parent = os.path.dirname(os.path.abspath(path))
     if(parent == path):
         raise RuntimeError("could not find %s" % target)
-    return FindNearest(parent, target, filename)
+    return FindNearest(parent, target, filename, subdirs)
 
 def FindFileInDb(database, filename):
     logging.info("%s: Trying to find file in database..."

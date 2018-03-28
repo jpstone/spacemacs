@@ -1,6 +1,6 @@
 ;;; packages.el --- Prodigy Layer packages File for Spacemacs
 ;;
-;; Copyright (c) 2012-2017 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2018 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -27,7 +27,7 @@
         "J" 'prodigy-next-with-status
         "K" 'prodigy-prev-with-status
         "L" 'prodigy-start
-        "d" 'prodigy-jump-dired
+        "d" 'prodigy-jump-file-manager
         "g" 'prodigy-jump-magit
         "Y" 'prodigy-copy-cmd
         "R" 'revert-buffer)

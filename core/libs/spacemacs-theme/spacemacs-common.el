@@ -144,6 +144,7 @@ to 'auto, tags may not be properly aligned. "
         (red-bg-s      (if (eq variant 'dark) (if (true-color-p) "#512e31" "#262626") (if (true-color-p) "#eed9d2" "#ffffff")))
         (blue          (if (eq variant 'dark) (if (true-color-p) "#4f97d7" "#268bd2") (if (true-color-p) "#3a81c3" "#268bd2")))
         (blue-bg       (if (eq variant 'dark) (if (true-color-p) "#293239" "#262626") (if (true-color-p) "#edf1ed" "#d7d7ff")))
+        (blue-bg-s     (if (eq variant 'dark) (if (true-color-p) "#2d4252" "#262626") (if (true-color-p) "#d1dcdf" "#d7d7ff")))
         (magenta       (if (eq variant 'dark) (if (true-color-p) "#a31db1" "#af00df") (if (true-color-p) "#a31db1" "#800080")))
         (yellow        (if (eq variant 'dark) (if (true-color-p) "#b1951d" "#875f00") (if (true-color-p) "#b1951d" "#875f00")))
         (yellow-bg     (if (eq variant 'dark) (if (true-color-p) "#32322c" "#262626") (if (true-color-p) "#f6f1e1" "#ffffff")))
@@ -194,6 +195,9 @@ to 'auto, tags may not be properly aligned. "
      `(vertical-border ((,class (:foreground ,border))))
      `(warning ((,class (:foreground ,war))))
 
+;;;;; ace-window
+     `(aw-leading-char-face ((,class (:foreground ,func :weight bold :height 2.0 :box (:line-width 1 :color ,keyword :style released-button)))))
+
 ;;;;; ahs
      `(ahs-face ((,class (:background ,highlight))))
      `(ahs-plugin-whole-buffer-face ((,class (:background ,mat :foreground ,bg1))))
@@ -205,10 +209,10 @@ to 'auto, tags may not be properly aligned. "
      `(ac-completion-face ((,class (:background ,ttip-bg :foreground ,ttip))))
 
 ;;;;; avy
-     `(avy-lead-face   ((,class (:background ,blue-bg :foreground ,magenta))))
-     `(avy-lead-face-0 ((,class (:background ,blue-bg :foreground ,blue))))
-     `(avy-lead-face-1 ((,class (:background ,blue-bg :foreground ,magenta))))
-     `(avy-lead-face-2 ((,class (:background ,blue-bg :foreground ,blue))))
+     `(avy-lead-face   ((,class (:background ,green-bg :foreground ,green))))
+     `(avy-lead-face-0 ((,class (:background ,green-bg :foreground ,yellow))))
+     `(avy-lead-face-1 ((,class (:background ,green-bg :foreground ,magenta))))
+     `(avy-lead-face-2 ((,class (:background ,green-bg :foreground ,blue))))
 
 ;;;;; calfw
      `(cfw:face-title               ((,class (:foreground ,head1 :height 2.0 :weight bold :inherit variable-pitch))))
@@ -249,8 +253,8 @@ to 'auto, tags may not be properly aligned. "
      `(company-scrollbar-fg ((,class (:background ,act2))))
      `(company-template-field ((,class (:inherit region))))
      `(company-tooltip ((,class (:background ,ttip-bg :foreground ,ttip))))
-     `(company-tooltip-annotation ((,class (:foreground ,keyword))))
-     `(company-tooltip-common ((,class (:background ,ttip-bg :foreground ,base))))
+     `(company-tooltip-annotation ((,class (:foreground ,type))))
+     `(company-tooltip-common ((,class (:background ,ttip-bg :foreground ,keyword))))
      `(company-tooltip-common-selection ((,class (:foreground ,base))))
      `(company-tooltip-mouse ((,class (:inherit highlight))))
      `(company-tooltip-search ((,class (:inherit match))))
@@ -317,7 +321,7 @@ to 'auto, tags may not be properly aligned. "
      `(elfeed-search-date-face ((,class (:foreground ,head2))))
      `(elfeed-search-feed-face ((,class (:foreground ,blue))))
      `(elfeed-search-tag-face ((,class (:foreground ,func))))
-     `(elfeed-search-title-face ((,class (:foreground ,base-dim))))
+     `(elfeed-search-title-face ((,class (:foreground ,var))))
      `(elfeed-search-unread-title-face ((,class (:foreground ,base))))
 
 ;;;;; enh-ruby
@@ -367,6 +371,17 @@ to 'auto, tags may not be properly aligned. "
        ((,(append '((supports :underline (:style line))) class)
          (:underline (:style line :color ,war)))
         (,class (:foreground ,base :background ,war :inherit bold :underline t))))
+
+;;;;; flymake
+     `(flymake-error ((,(append '((supports :underline (:style line))) class)
+                       (:underline (:style line :color ,err)))
+                      (,class (:foreground ,base :background ,err :inherit bold :underline t))))
+     `(flymake-note ((,(append '((supports :underline (:style line))) class)
+                      (:underline (:style wave :color ,keyword)))
+                     (,class (:foreground ,base :background ,keyword :inherit bold :underline t))))
+     `(flymake-warning ((,(append '((supports :underline (:style line))) class)
+                         (:underline (:style line :color ,war)))
+                        (,class (:foreground ,base :background ,war :inherit bold :underline t))))
 
 ;;;;; jabber
      `(jabber-activity-face ((,class (:inherit bold :foreground ,red))))
@@ -578,6 +593,7 @@ to 'auto, tags may not be properly aligned. "
      `(markdown-header-face-4 ((,class (:bold nil :foreground ,head4 :background ,(when spacemacs-theme-org-highlight head4-bg)))))
      `(markdown-header-face-5 ((,class (:bold nil :foreground ,head1))))
      `(markdown-header-face-6 ((,class (:bold nil :foreground ,head2))))
+     `(markdown-table-face ((,class (:foreground ,base :background ,head1-bg))))
 
 ;;;;; mode-line
      `(mode-line           ((,class (:foreground ,base :background ,act1 :box (:color ,border :line-width 1)))))
@@ -664,12 +680,14 @@ to 'auto, tags may not be properly aligned. "
      `(org-quote ((,class (:inherit org-block :slant italic))))
      `(org-scheduled ((,class (:foreground ,comp))))
      `(org-scheduled-today ((,class (:foreground ,func :height ,(if spacemacs-theme-org-agenda-height 1.2 1.0)))))
+     `(org-scheduled-previously ((,class (:foreground ,base :slant italic))))
      `(org-sexp-date ((,class (:foreground ,base))))
      `(org-special-keyword ((,class (:foreground ,func))))
      `(org-table ((,class (:foreground ,base :background ,head1-bg))))
      `(org-tag ((,class (:foreground ,meta))))
      `(org-time-grid ((,class (:foreground ,str))))
      `(org-todo ((,class (:foreground ,war :inherit bold :background ,yellow-bg))))
+     `(org-upcoming-deadline ((,class (:foreground ,war :inherit org-priority))))
      `(org-verbatim ((,class (:foreground ,keyword))))
      `(org-verse ((,class (:inherit org-block :slant italic))))
      `(org-warning ((,class (:foreground ,err))))
@@ -731,7 +749,7 @@ to 'auto, tags may not be properly aligned. "
      `(smerge-mine ((,class (:background ,red-bg))))
      `(smerge-other ((,class (:background ,green-bg))))
      `(smerge-refined-added ((,class (:background ,green-bg-s :foreground ,green))))
-     `(smerge-refined-changed ((,class (:background ,blue-bg :foreground ,blue))))
+     `(smerge-refined-changed ((,class (:background ,blue-bg-s :foreground ,blue))))
      `(smerge-refined-removed ((,class (:background ,red-bg-s :foreground ,red))))
 
 ;;;;; spaceline
@@ -769,6 +787,9 @@ to 'auto, tags may not be properly aligned. "
      `(term-color-red ((,class (:foreground ,red))))
      `(term-color-white ((,class (:foreground ,base))))
      `(term-color-yellow ((,class (:foreground ,yellow))))
+
+;;;;; tide
+     `(tide-hl-identifier-face ((,class (:foreground ,yellow :background ,yellow-bg))))
 
 ;;;;; treemacs
      `(treemacs-git-added-face ((,class (:foreground ,green :background ,green-bg))))
@@ -810,7 +831,7 @@ to 'auto, tags may not be properly aligned. "
      `(whitespace-space ((,class (:background nil :foreground ,act2))))
      `(whitespace-space-after-tab ((,class (:background nil :foreground ,yellow))))
      `(whitespace-space-before-tab ((,class (:background nil :foreground ,yellow))))
-     `(whitespace-tab ((,class (:background nil))))
+     `(whitespace-tab ((,class (:background nil :foreground ,act2))))
      `(whitespace-trailing ((,class (:background ,err :foreground ,war))))
 
 ;;;;; other, need more work

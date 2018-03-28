@@ -1,6 +1,6 @@
 ;;; config.el --- Helm Configuration File for Spacemacs
 ;;
-;; Copyright (c) 2012-2017 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2018 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -36,6 +36,10 @@ values."
   "Controls fuzzy matching in helm. If set to `always', force fuzzy matching
   in all non-asynchronous sources. If set to `source', preserve individual
   source settings. Else, disable fuzzy matching in all sources.")
+
+(defvar spacemacs-helm-rg-max-column-number 512
+  "Controls the maximum number of columns to display with ripgrep (otherwise
+  omits a line)")
 
 ;; internals
 

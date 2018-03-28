@@ -1,6 +1,6 @@
 ;;; packages.el --- Clojure Layer packages File for Spacemacs
 ;;
-;; Copyright (c) 2012-2017 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2018 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -14,11 +14,14 @@
         cider
         cider-eval-sexp-fu
         clj-refactor
+        clojure-cheatsheet
         clojure-mode
         (clojure-snippets :toggle (configuration-layer/layer-used-p 'auto-completion))
         company
         eldoc
+        evil-cleverparens
         ggtags
+        counsel-gtags
         helm-gtags
         org
         parinfer
@@ -39,26 +42,32 @@
             cider-prompt-save-file-on-load nil
             cider-repl-use-clojure-font-lock t
             cider-repl-history-file (concat spacemacs-cache-directory "cider-repl-history"))
-      (push "\\*cider-repl\.\+\\*" spacemacs-useful-buffers-regexp)
       (add-hook 'clojure-mode-hook 'cider-mode)
       (dolist (x '(spacemacs-jump-handlers-clojure-mode
                    spacemacs-jump-handlers-clojurec-mode
                    spacemacs-jump-handlers-clojurescript-mode
                    spacemacs-jump-handlers-clojurex-mode
                    spacemacs-jump-handlers-cider-repl-mode))
-        (add-to-list x 'cider-find-var))
+        (add-to-list x 'spacemacs/clj-find-var))
+
+      (add-hook 'clojure-mode-hook #'spacemacs//init-jump-handlers-clojure-mode)
+      (add-hook 'clojurescript-mode-hook #'spacemacs//init-jump-handlers-clojurescript-mode)
+      (add-hook 'clojurec-mode-hook #'spacemacs//init-jump-handlers-clojurec-mode)
+      (add-hook 'cider-repl-mode-hook #'spacemacs//init-jump-handlers-cider-repl-mode)
 
       ;; TODO: having this work for cider-macroexpansion-mode would be nice,
       ;;       but the problem is that it uses clojure-mode as its major-mode
       (let ((cider--key-binding-prefixes
              '(("md" . "debug")
                ("me" . "evaluation")
+               ("mf" . "format")
                ("mg" . "goto")
                ("mh" . "documentation")
+               ("mp" . "profile")
                ("ms" . "repl")
                ("mt" . "test")
                ("mT" . "toggle")
-               ("mf" . "format"))))
+               )))
         (dolist (m '(clojure-mode
                      clojurec-mode
                      clojurescript-mode
@@ -71,8 +80,9 @@
 
           (spacemacs/set-leader-keys-for-major-mode m
             "ha" 'cider-apropos
-            "hh" 'cider-doc
+            "hc" 'clojure-cheatsheet
             "hg" 'cider-grimoire
+            "hh" 'cider-doc
             "hj" 'cider-javadoc
             "hn" 'cider-browse-ns
 
@@ -82,8 +92,8 @@
             "ef" 'cider-eval-defun-at-point
             "em" 'cider-macroexpand-1
             "eM" 'cider-macroexpand-all
-            "er" 'cider-eval-region
             "eP" 'cider-pprint-eval-last-sexp
+            "er" 'cider-eval-region
             "ew" 'cider-eval-last-sexp-and-replace
 
             "="  'cider-format-buffer
@@ -92,9 +102,11 @@
             "gb" 'cider-pop-back
             "gc" 'cider-classpath
             "ge" 'cider-jump-to-compilation-error
-            "gr" 'cider-jump-to-resource
             "gn" 'cider-browse-ns
             "gN" 'cider-browse-ns-all
+            "gr" 'cider-find-resource
+            "gs" 'cider-browse-spec
+            "gS" 'cider-browse-spec-all
 
             "'"  'cider-jack-in
             "\"" 'cider-jack-in-clojurescript
@@ -130,8 +142,8 @@
             "ta" 'spacemacs/cider-test-run-all-tests
             "tb" 'cider-test-show-report
             "tl" 'spacemacs/cider-test-run-loaded-tests
-            "tp" 'spacemacs/cider-test-run-project-tests
             "tn" 'spacemacs/cider-test-run-ns-tests
+            "tp" 'spacemacs/cider-test-run-project-tests
             "tr" 'spacemacs/cider-test-rerun-failed-tests
             "tt" 'spacemacs/cider-test-run-focused-test
 
@@ -139,13 +151,23 @@
             "de" 'spacemacs/cider-display-error-buffer
             "dv" 'cider-inspect
 
+            ;; profile
+            "p+" 'cider-profile-samples
+            "pc" 'cider-profile-clear
+            "pn" 'cider-profile-ns-toggle
+            "ps" 'cider-profile-var-summary
+            "pS" 'cider-profile-summary
+            "pt" 'cider-profile-toggle
+            "pv" 'cider-profile-var-profiled-p
+
             ;; refactorings from clojure-mode
-            "rc{" 'clojure-convert-collection-to-map
-            "rc(" 'clojure-convert-collection-to-list
-            "rc'" 'clojure-convert-collection-to-quoted-list
             "rc#" 'clojure-convert-collection-to-set
+            "rc'" 'clojure-convert-collection-to-quoted-list
+            "rc(" 'clojure-convert-collection-to-list
+            "rc:" 'clojure-toggle-keyword-string
             "rc[" 'clojure-convert-collection-to-vector
-            "rc:" 'clojure-toggle-keyword-string)))
+            "rc{" 'clojure-convert-collection-to-map
+            )))
 
       ;; cider-repl-mode only
       (spacemacs/set-leader-keys-for-major-mode 'cider-repl-mode
@@ -188,7 +210,8 @@
       (evilified-state-evilify cider-inspector-mode cider-inspector-mode-map
         (kbd "L") 'cider-inspector-pop
         (kbd "n") 'cider-inspector-next-page
-        (kbd "N") 'cider-inspector-previous-page
+        (kbd "N") 'cider-inspector-prev-page
+        (kbd "p") 'cider-inspector-prev-page
         (kbd "r") 'cider-inspector-refresh)
 
       (evilified-state-evilify cider-test-report-mode cider-test-report-mode-map
@@ -261,6 +284,25 @@
                 (spacemacs/set-leader-keys-for-major-mode m
                   (concat "r" binding) func)))))))))
 
+(defun clojure/init-clojure-cheatsheet ()
+  (use-package clojure-cheatsheet
+    :defer t
+    :init
+    (progn
+      (setq sayid--key-binding-prefixes
+            '(("mhc" . "clojure-cheatsheet")))
+      (dolist (m '(clojure-mode
+                   clojurec-mode
+                   clojurescript-mode
+                   clojurex-mode
+                   cider-repl-mode
+                   cider-clojure-interaction-mode))
+        (mapc (lambda (x) (spacemacs/declare-prefix-for-mode
+                            m (car x) (cdr x)))
+              sayid--key-binding-prefixes)
+        (spacemacs/set-leader-keys-for-major-mode m
+          "hc" 'clojure-cheatsheet)))))
+
 (defun clojure/init-clojure-mode ()
   (use-package clojure-mode
     :defer t
@@ -281,6 +323,15 @@
   (add-hook 'cider-mode-hook 'eldoc-mode)
   (add-hook 'cider-repl-mode-hook 'eldoc-mode)
   (add-hook 'cider-clojure-interaction-mode-hook 'eldoc-mode))
+
+(defun clojure/pre-init-evil-cleverparens ()
+  (spacemacs|use-package-add-hook evil-cleverparens
+    :pre-init
+    (dolist (m '(clojure-mode
+                 clojurec-mode
+                 clojurescript-mode
+                 clojurex-mode))
+      (add-to-list 'evil-lisp-safe-structural-editing-modes m))))
 
 (defun clojure/pre-init-popwin ()
   (spacemacs|use-package-add-hook popwin
@@ -310,6 +361,9 @@
 
 (defun clojure/post-init-ggtags ()
   (add-hook 'clojure-mode-local-vars-hook #'spacemacs/ggtags-mode-enable))
+
+(defun clojure/post-init-counsel-gtags ()
+  (spacemacs/counsel-gtags-define-keys-for-mode 'clojure-mode))
 
 (defun clojure/post-init-helm-gtags ()
   (spacemacs/helm-gtags-define-keys-for-mode 'clojure-mode))
@@ -341,27 +395,28 @@
               sayid--key-binding-prefixes)
         (spacemacs/set-leader-keys-for-major-mode m
           ;;These keybindings mostly preserved from the default sayid bindings
-          "df" 'sayid-query-form-at-point
-          "dw" 'sayid-get-workspace
-          "dE" 'sayid-eval-last-sexp ;in default sayid bindings this is lowercase e, but that was already used in clojure mode
           "d!" 'sayid-load-enable-clear
+          "dE" 'sayid-eval-last-sexp ;in default sayid bindings this is lowercase e, but that was already used in clojure mode
           "dc" 'sayid-clear-log
-          "dx" 'sayid-reset-workspace
+          "df" 'sayid-query-form-at-point
+          "dh" 'sayid-show-help
           "ds" 'sayid-show-traced
           "dS" 'sayid-show-traced-ns
-          "dV" 'sayid-set-view
-          "dh" 'sayid-show-help
-          "dty" 'sayid-trace-all-ns-in-dir
-          "dtp" 'sayid-trace-ns-by-pattern
           "dtb" 'sayid-trace-ns-in-file
-          "dte" 'sayid-trace-fn-enable
-          "dtE" 'sayid-trace-enable-all
           "dtd" 'sayid-trace-fn-disable
           "dtD" 'sayid-trace-disable-all
+          "dte" 'sayid-trace-fn-enable
+          "dtE" 'sayid-trace-enable-all
+          "dtK" 'sayid-kill-all-traces
           "dtn" 'sayid-inner-trace-fn
           "dto" 'sayid-outer-trace-fn
+          "dtp" 'sayid-trace-ns-by-pattern
           "dtr" 'sayid-remove-trace-fn
-          "dtK" 'sayid-kill-all-traces))
+          "dty" 'sayid-trace-all-ns-in-dir
+          "dV" 'sayid-set-view
+          "dw" 'sayid-get-workspace
+          "dx" 'sayid-reset-workspace
+          ))
 
       (evilified-state-evilify sayid-mode sayid-mode-map
         (kbd "H") 'sayid-buf-show-help

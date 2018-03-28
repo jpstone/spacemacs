@@ -7,14 +7,21 @@
   - [[#features][Features:]]
 - [[#install][Install]]
   - [[#layer][Layer]]
-  - [[#dependencies][Dependencies]]
-    - [[#auto-completion-anaconda-dependencies][Auto-completion: Anaconda dependencies]]
+  - [[#choosing-a-backend][Choosing a backend]]
+- [[#backends][Backends]]
+  - [[#anaconda][Anaconda]]
+  - [[#language-server-protocol][Language Server Protocol]]
+- [[#additional-tools][Additional tools]]
     - [[#syntax-checking][Syntax checking]]
   - [[#test-runner][Test runner]]
   - [[#automatic-buffer-formatting-on-save][Automatic buffer formatting on save]]
+  - [[#automatic-save-of-buffer-when-testing][Automatic save of buffer when testing]]
   - [[#autoflake][autoflake]]
   - [[#pylookup][pylookup]]
   - [[#hy-mode][Hy-mode]]
+- [[#configuration][Configuration]]
+  - [[#fill-column][Fill column]]
+  - [[#sort-imports][Sort imports]]
 - [[#management-of-python-versions-and-virtual-environments][Management of Python versions and virtual environments]]
   - [[#manage-virtual-environments-with-pyvenv][Manage virtual environments with pyvenv]]
   - [[#manage-multiple-python-versions-with-pyenv][Manage multiple Python versions with pyenv]]
@@ -24,20 +31,21 @@
   - [[#running-python-script-in-shell][Running Python Script in shell]]
   - [[#testing][Testing]]
   - [[#refactoring][Refactoring]]
+  - [[#pip-package-management][Pip package management]]
   - [[#live-coding][Live coding]]
   - [[#hy-repl-process][Hy REPL process]]
   - [[#other-python-commands][Other Python commands]]
-- [[#configuration][Configuration]]
-  - [[#fill-column][Fill column]]
-  - [[#sort-imports][Sort imports]]
 
 * Description
 This layer adds support for the Python language.
 
 ** Features:
-- Auto-completion using [[https://github.com/proofit404/anaconda-mode][anaconda-mode]]
-- Code Navigation using  [[https://github.com/proofit404/anaconda-mode][anaconda-mode]]
-- Documentation Lookup using  [[https://github.com/proofit404/anaconda-mode][anaconda-mode]]  and [[https://github.com/tsgates/pylookup][pylookup]]
+- Support for the following backends:
+  - [[https://github.com/proofit404/anaconda-mode][anaconda]] (default),
+  - [[https://github.com/emacs-lsp/lsp-python][Language Server Protocol]] (experimental),
+- Auto-completion
+- Code Navigation
+- Documentation Lookup using  [[https://github.com/proofit404/anaconda-mode][anaconda-mode]] and [[https://github.com/tsgates/pylookup][pylookup]]
 - Test Runners using [[https://github.com/syl20bnr/nose.el][nose.el]] or [[https://github.com/ionrock/pytest-el][pytest]]
 - Virtual Environment using  [[https://github.com/jorgenschaefer/pyvenv][pyvenv]] and [[https://github.com/yyuu/pyenv][pyenv]]
 - semantic mode is enabled
@@ -46,6 +54,8 @@ This layer adds support for the Python language.
 - Suppression of unused import with [[https://github.com/myint/autoflake][autoflake]]
 - Use the ~%~ key to jump between blocks with [[https://github.com/redguardtoo/evil-matchit][evil-matchit]]
 - Sort imports with [[https://pypi.python.org/pypi/isort][isort]]
+- Fix a missing import statement with [[https://github.com/anachronic/importmagic.el][importmagic]]
+- Pip package manager with [[https://github.com/brotzeit/pippel][pippel]]
 
 * Install
 ** Layer
@@ -53,8 +63,28 @@ To use this configuration layer, add it to your =~/.spacemacs=. You will need to
 add =python= to the existing =dotspacemacs-configuration-layers= list in this
 file.
 
-** Dependencies
-*** Auto-completion: Anaconda dependencies
+** Choosing a backend
+To choose a default backend set the layer variable =python-backend=:
+
+#+BEGIN_SRC elisp
+(python :variables python-backend 'anaconda)
+#+END_SRC
+
+Backend can be chosen on a per project basis using directory local variables
+(files named =.dir-locals.el= at the root of a project), an example to use the
+=lsp= backend:
+
+#+BEGIN_SRC elisp
+;;; Directory Local Variables
+;;; For more information see (info "(emacs) Directory Variables")
+
+((python-mode (python-backend . lsp)))
+#+END_SRC
+
+*Note:* you can easily add a directory local variable with ~SPC f v d~.
+
+* Backends
+** Anaconda
 =anaconda-mode= tries to install the dependencies itself but sometimes
 it does not work and you may encounter the following message when
 opening a python buffer:
@@ -78,6 +108,23 @@ If you are facing errors such as "Unable to run anaconda-mode server", try
 setting your =PYTHONPATH= as explained at
 https://github.com/proofit404/anaconda-mode#pythonpath
 
+** Language Server Protocol
+You just have to install python language server package:
+
+#+begin_src sh
+pip install python-language-server
+#+end_src
+
+Additionally you can install the following other packages:
+
+#+begin_src sh
+# for import sorting
+pip install pyls-isort
+# for mypy checking (python 3.4+ is needed)
+pip install pyls-mypy
+#+end_src
+
+* Additional tools
 *** Syntax checking
 Syntax checking uses =flake8= package:
 
@@ -120,6 +167,15 @@ To enable automatic buffer formatting on save with  [[https://github.com/google/
     (python :variables python-enable-yapf-format-on-save t)))
 #+END_SRC
 
+** Automatic save of buffer when testing
+By default a buffer is automatically saved before tests are executed upon it,
+you can disable this feature by setting =python-save-before-test= to =nil=.
+
+#+BEGIN_SRC emacs-lisp
+  (setq-default dotspacemacs-configuration-layers '(
+    (python :variables python-save-before-test nil)))
+#+END_SRC
+
 ** autoflake
 To be able to suppress unused imports easily, install [[https://github.com/myint/autoflake][autoflake]]:
 
@@ -138,6 +194,28 @@ that hy is installed.
 #+BEGIN_SRC sh
   pip install hy
 #+END_SRC
+
+* Configuration
+** Fill column
+If you want to customize the fill column value, use something like this inside
+the =user-init= function in your =.spacemacs=:
+
+#+BEGIN_SRC elisp
+(setq-default dotspacemacs-configuration-layers '(
+    (python :variables python-fill-column 99)))
+#+END_SRC
+
+** Sort imports
+If you want imports to be automatically sorted when you save a file (using
+[[https://pypi.python.org/pypi/isort][isort]]), set the =python-sort-imports-on-save= variable in the python layer
+config section:
+
+#+BEGIN_SRC elisp
+(setq-default dotspacemacs-configuration-layers
+  '((python :variables python-sort-imports-on-save t)))
+#+END_SRC
+
+or as a directory-local variable (for per-project settings).
 
 * Management of Python versions and virtual environments
 ** Manage virtual environments with pyvenv
@@ -231,6 +309,7 @@ function with a prefix argument, for example ~SPC u SPC m t a~.
 |-------------+----------------------------------------------------------|
 | ~SPC m t a~ | launch all tests of the project                          |
 | ~SPC m t b~ | launch all tests of the current buffer (same as module)  |
+| ~SPC m t l~ | launch last tests                                        |
 | ~SPC m t m~ | launch all tests of the current module                   |
 | ~SPC m t s~ | launch all tests of the current suite (only with =nose=) |
 | ~SPC m t t~ | launch the current test (function)                       |
@@ -245,10 +324,31 @@ function with a prefix argument, for example ~SPC u SPC m t a~.
 
 ** Refactoring
 
-| Key Binding | Description                          |
-|-------------+--------------------------------------|
-| ~SPC m r i~ | remove unused imports with [[https://github.com/myint/autoflake][autoflake]] |
-| ~SPC m r I~ | sort imports with [[https://pypi.python.org/pypi/isort][isort]]              |
+| Key Binding | Description                                     |
+|-------------+-------------------------------------------------|
+| ~SPC m r f~ | fix a missing import statement with [[https://pypi.python.org/pypi/importmagic][importmagic]] |
+| ~SPC m r i~ | remove unused imports with [[https://github.com/myint/autoflake][autoflake]]            |
+| ~SPC m r I~ | sort imports with [[https://pypi.python.org/pypi/isort][isort]]                         |
+
+** Pip package management
+In python buffer type ~SPC m P~ to open buffer listing all installed =pip=
+packages in the currently activated virtual environment.
+
+*Note:* To open this menu from outside a python buffer type
+~SPC SPC pippel-list-packages RET~ .
+
+In the package list buffer:
+
+| Key Binding | Description                                                 |
+|-------------+-------------------------------------------------------------|
+| ~RET~       | follow link (=pippel-menu-visit-homepage=)                  |
+| ~d~         | mark for deletion (=pippel-menu-mark-delete=)               |
+| ~i~         | prompt user for packages (=pippel-install-package=)         |
+| ~m~         | remove mark (=pippel-menu-mark-unmark=)                     |
+| ~r~         | refresh package list (=pippel-list-packages=)               |
+| ~U~         | mark all upgradable (=pippel-menu-mark-all-upgrades=)       |
+| ~u~         | mark for upgrade (=pippel-menu-mark-upgrade=)               |
+| ~x~         | perform marked package menu actions (=pippel-menu-execute=) |
 
 ** Live coding
 Live coding is provided by the [[https://github.com/donkirkby/live-py-plugin][live-py-plugin.]]
@@ -278,41 +378,25 @@ Send code to hy REPL commands:
 
 ** Other Python commands
 
-| Key Binding | Description                                                                  |
-|-------------+------------------------------------------------------------------------------|
-| ~SPC m =~   | Reformat the buffer according to PEP8 using  [[https://github.com/google/yapf][YAPF]]                            |
-| ~SPC m d b~ | toggle a breakpoint using =wdb=, =ipdb=, =pudb= or =pdb=                     |
-| ~SPC m g g~ | go to definition using =anaconda-mode-find-definitions= (~C-o~ to jump back) |
-| ~SPC m g a~ | go to assignment using =anaconda-mode-find-assignments= (~C-o~ to jump back) |
-| ~SPC m g b~ | jump back                                                                    |
-| ~SPC m g u~ | navigate between usages with =anaconda-mode-find-references=                 |
-| ~SPC m h d~ | look for documentation using =helm-pydoc=                                    |
-| ~SPC m h h~ | quick documentation using anaconda                                           |
-| ~SPC m h H~ | open documentation in =firefox= using [[https://github.com/tsgates/pylookup][pylookup]]                               |
-| ~SPC m v s~ | set a pyenv environment with [[https://github.com/pyenv/pyenv][pyenv]]                                           |
-| ~SPC m v u~ | unset a pyenv environment with [[https://github.com/pyenv/pyenv][pyenv]]                                         |
-| ~SPC m V w~ | work on virtual environment in =WORKON_HOME=                                 |
-| ~SPC m V a~ | activate a virtual environment in any directory                              |
-| ~SPC m V d~ | deactivate active virtual environment                                        |
-
-* Configuration
-** Fill column
-If you want to customize the fill column value, use something like this inside
-the =user-init= function in your =.spacemacs=:
-
-#+BEGIN_SRC elisp
-(setq-default dotspacemacs-configuration-layers '(
-    (python :variables python-fill-column 99)))
-#+END_SRC
-
-** Sort imports
-If you want imports to be automatically sorted when you save a file (using
-[[https://pypi.python.org/pypi/isort][isort]]), set the =python-sort-imports-on-save= variable in the python layer
-config section:
-
-#+BEGIN_SRC elisp
-(setq-default dotspacemacs-configuration-layers
-  '((python :variables python-sort-imports-on-save t)))
-#+END_SRC
-
-or as a directory-local variable (for per-project settings).
+| Key Binding   | Description                                                                  |
+|---------------+------------------------------------------------------------------------------|
+| ~SPC m =~     | Reformat the buffer according to PEP8 using  [[https://github.com/google/yapf][YAPF]]                            |
+| ~SPC m d b~   | toggle a breakpoint using =wdb=, =ipdb=, =pudb= or =pdb=                     |
+| ~SPC m g a~   | go to assignment using =anaconda-mode-find-assignments= (~C-o~ to jump back) |
+| ~SPC m g b~   | jump back                                                                    |
+| ~SPC m g g~   | go to definition using =anaconda-mode-find-definitions= (~C-o~ to jump back) |
+| ~SPC m g u~   | navigate between usages with =anaconda-mode-find-references=                 |
+| ~SPC m h d~   | look for documentation using =helm-pydoc=                                    |
+| ~SPC m h h~   | quick documentation using anaconda                                           |
+| ~SPC m h H~   | open documentation in =firefox= using [[https://github.com/tsgates/pylookup][pylookup]]                               |
+| ~SPC m v a~   | activate a virtual environment in any directory                              |
+| ~SPC m v d~   | deactivate active virtual environment                                        |
+| ~SPC m v s~   | set a pyenv environment with [[https://github.com/pyenv/pyenv][pyenv]]                                           |
+| ~SPC m v u~   | unset a pyenv environment with [[https://github.com/pyenv/pyenv][pyenv]]                                         |
+| ~SPC m v w~   | work on virtual environment in =WORKON_HOME=                                 |
+| ~SPC m v p a~ | activate pipenv in current project                                           |
+| ~SPC m v p d~ | deactivate pipenv in current project                                         |
+| ~SPC m v p i~ | install module into pipenv environment                                       |
+| ~SPC m v p o~ | open pipenv module in buffer                                                 |
+| ~SPC m v p s~ | launch pipenv shell in current project                                       |
+| ~SPC m v p u~ | uninstall module from pipenv environment                                     |

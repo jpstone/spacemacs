@@ -1,6 +1,6 @@
-;;; layers.el --- Spacemacs Layer layers File
+;;; layers.el --- Spacemacs distribution Layer layers File
 ;;
-;; Copyright (c) 2012-2017 Sylvain Benner & Contributors
+;; Copyright (c) 2012-2018 Sylvain Benner & Contributors
 ;;
 ;; Author: Sylvain Benner <sylvain.benner@gmail.com>
 ;; URL: https://github.com/syl20bnr/spacemacs
@@ -23,6 +23,7 @@
                                       spacemacs-modeline
                                       spacemacs-navigation
                                       spacemacs-org
+                                      spacemacs-project
                                       spacemacs-purpose
                                       spacemacs-visual
                                       ))

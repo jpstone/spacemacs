@@ -4,6 +4,7 @@
 
 * Table of Contents                                        :TOC_4_gh:noexport:
 - [[#description][Description]]
+  - [[#features][Features:]]
 - [[#install][Install]]
   - [[#alternative-layers][Alternative layers]]
 - [[#configuration][Configuration]]
@@ -11,6 +12,7 @@
   - [[#disable-helm-header][Disable Helm header]]
   - [[#define-helm-position][Define Helm position]]
   - [[#enable-fuzzy-searching-in-helm-buffers][Enable fuzzy searching in Helm buffers]]
+  - [[#ripgrep-maximum-number-of-column][Ripgrep: maximum number of column]]
 - [[#key-bindings][Key bindings]]
   - [[#hjkl-navigation][hjkl navigation]]
   - [[#transient-state][Transient state]]
@@ -32,6 +34,14 @@ used to manage buffers, projects, search results, configuration layers, toggles
 and more...
 
 Mastering your choice of completion system will make you a Spacemacs power user.
+
+** Features:
+- Project wide =grep= like text search via =helm-dir-smart-do-search=
+- Project wide text replacements using =helm-edit-mode=
+- Buffer wide dynamic text search via =helm-swoop=
+- Fuzzy matching for most =helm-sources=
+- Detailed configuration parameters for helms appearance
+- Intuitive =transient state=
 
 * Install
 Helm is part of the standard distribution of Spacemacs so you don't have to do
@@ -102,6 +112,15 @@ variable =helm-use-fuzzy= to the value ='source=.
 #+END_SRC
 
 Default value is =always=.
+
+** Ripgrep: maximum number of column
+If you use =ripgrep= the default value for =--max-columns= is =512=. To change
+if set the layer variable =spacemacs-helm-rg-max-column-number=.
+
+#+BEGIN_SRC emacs-lisp
+  (setq-default dotspacemacs-configuration-layers '(
+    (helm :variables spacemacs-helm-rg-max-column-number 1024)))
+#+END_SRC
 
 * Key bindings
 ** hjkl navigation
